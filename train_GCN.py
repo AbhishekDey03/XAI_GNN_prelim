@@ -34,7 +34,7 @@ data = dataset[0]
 X = data.x.numpy()
 
 if adjacency_type.lower() == 'threshold':
-    metric = 'Jaccard'  # 'jaccard' or 'hamming'
+    metric = 'Jaccard'
     T = 5
     edge_index = threshold_adjacency(X, T, metric.lower())
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
@@ -52,12 +52,15 @@ class GCN(torch.nn.Module):
     def __init__(self, in_feats, hid, out_feats):
         super().__init__()
         self.conv1 = pyg_nn.GCNConv(in_feats, hid)
-        self.conv2 = pyg_nn.GCNConv(hid, out_feats)
+        self.conv2 = pyg_nn.GCNConv(hid, hid) 
+        self.conv3 = pyg_nn.GCNConv(hid, out_feats)
+
     def forward(self, data):
         x, ei = data.x, data.edge_index
         x = F.relu(self.conv1(x, ei))
-        x = self.conv2(x, ei)
-        return x
+        x = F.relu(self.conv2(x, ei))
+        x = self.conv3(x, ei)                     
+        return x    
     
 
 new_data = data.clone()
@@ -90,7 +93,7 @@ for epoch in range(1, 201):
         loss = train()
         if epoch % 20 == 0:
             train_acc, val_acc, test_acc = test()
-            print(f'Epoch {epoch:03d} | Loss: {loss:.3f} | Train/Val/Test Acc: {train_acc:.3f}/{val_acc:.3f}/{test_acc:.3f}')
+            print(f'Epoch {epoch:03d} | Loss: {loss:.6f} | Train/Val/Test Acc: {train_acc:.3f}/{val_acc:.3f}/{test_acc:.3f}')
 
 model.eval()
 with torch.no_grad():
