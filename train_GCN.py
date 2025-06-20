@@ -9,7 +9,7 @@ import re
 import networkx as nx
 from torch_geometric.utils import to_networkx
 from Silhouette_plots import plot_silhouette
-from Adjacency_types import threshold_adjacency, knn_adjacency, default_adjacency
+from Adjacency_types import *
 import umap.umap_ as umap
 from sklearn.preprocessing import StandardScaler
 
@@ -25,7 +25,7 @@ type_map = {
     6: 'Case Based'
 }
 
-adjacency_type = 'KNN'  # 'default', 'threshold', 'knn'
+adjacency_type = 'GMM'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
