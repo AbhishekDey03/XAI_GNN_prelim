@@ -25,7 +25,7 @@ type_map = {
     6: 'Case Based'
 }
 
-adjacency_type = 'Threshold'  # 'default', 'threshold', 'knn'
+adjacency_type = 'KNN'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
@@ -43,11 +43,10 @@ elif adjacency_type.lower() == 'knn':
     metric = 'Jaccard'
     edge_index = knn_adjacency(X, K, metric.lower())
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
-else:
-    edge_index = default_adjacency(X)
+elif adjacency_type.lower() == 'default':
     metric = False
+    edge_index = default_adjacency(X, data.edge_index)
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
-
 
 class GCN(torch.nn.Module):
     def __init__(self, in_feats, hid, out_feats):
@@ -91,7 +90,7 @@ for epoch in range(1, 201):
         loss = train()
         if epoch % 20 == 0:
             train_acc, val_acc, test_acc = test()
-            print(f'Epoch {epoch:03d} | Loss: {loss:.6f} | Train/Val/Test Acc: {train_acc:.6f}/{val_acc:.6f}/{test_acc:.6f}')
+            print(f'Epoch {epoch:03d} | Loss: {loss:.3f} | Train/Val/Test Acc: {train_acc:.3f}/{val_acc:.3f}/{test_acc:.3f}')
 
 model.eval()
 with torch.no_grad():
@@ -120,7 +119,7 @@ umap_model = umap.UMAP(
 embeds_umap = umap_model.fit_transform(H_scaled)
 
 # Plot both to compare
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
 
 scatter_tsne = ax1.scatter(embeds_2d[:, 0],embeds_2d[:, 1],c=labels,cmap='Set1',s=80,alpha=0.7)
 ax1.set_title(f't-SNE — {adjacency_type} {metric if metric else blank}', size=14)
