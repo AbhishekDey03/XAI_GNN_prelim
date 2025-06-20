@@ -151,7 +151,7 @@ plt.show()
 
 
 # Get silhouette labels
-scatter = ax.scatter(embeds_2d[:, 0], embeds_2d[:, 1], c=labels, cmap='Set1', s=80, alpha=0.7)
+scatter = ax1.scatter(embeds_2d[:, 0], embeds_2d[:, 1], c=labels, cmap='Set1', s=80, alpha=0.7)
 handles, legend_labels = scatter.legend_elements()
 colors = scatter.cmap(scatter.norm(np.unique(labels)))
 label_to_color = {label: color for label, color in zip(np.unique(labels), colors)}
