@@ -4,6 +4,7 @@ from sklearn.metrics import pairwise_distances
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from torch_geometric.utils import add_self_loops, to_undirected
+import umap
 
 def threshold_adjacency(X, T=5, metric='hamming'):
 
@@ -35,4 +36,15 @@ def knn_adjacency(X, K=5, metric='jaccard'):
 
 def default_adjacency(X, original_edge_index):
     edge_index, _ = add_self_loops(original_edge_index)
+    return edge_index
+
+
+def UMAP_threshold(X, T=5, n_components=2):
+    reducer = umap.UMAP(n_components=n_components)
+    X_umap = reducer.fit_transform(X)
+    D = pairwise_distances(X_umap)
+    d_cut = np.percentile(D, T)
+    mask = (D < d_cut).astype(int)
+    mask = np.logical_or(mask, mask.T)
+    edge_index, _ = dense_to_sparse(torch.tensor(mask, dtype=torch.float))
     return edge_index
