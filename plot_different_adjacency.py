@@ -34,17 +34,16 @@ adj_methods = {
     'Threshold (Jaccard)': lambda X: adj.threshold_adjacency(X, T=5, metric='jaccard'),
     'kNN (Jaccard)': lambda X: adj.knn_adjacency(X, K=5, metric='jaccard'),
     'UMAP Threshold': lambda X: adj.UMAP_threshold(X, T=5, n_components=2),
-    'Default (Original)': lambda X: adj.default_adjacency(X, data.edge_index)
+    'Default (Original)': lambda X: adj.default_adjacency(X, data.edge_index),
+    'mKNN (Jaccard)': lambda X: adj.mknn_adjacency(X, K=5, metric='jaccard'),
 }
 
-# --- Plot Setup ---
 n_methods = len(adj_methods)
 fig, axes = plt.subplots(1, n_methods, figsize=(5 * n_methods, 6))
 
 if n_methods == 1:
-    axes = [axes]  # ensure iterable
+    axes = [axes] 
 
-# --- Plot Each Graph ---
 for ax, (name, build_fn) in zip(axes, adj_methods.items()):
     edge_index = build_fn(X)
     temp_data = Data(x=data.x, edge_index=edge_index, y=data.y)
@@ -64,7 +63,6 @@ for ax, (name, build_fn) in zip(axes, adj_methods.items()):
     ax.set_title(name, fontsize=12)
     ax.axis('off')
 
-# --- Legend ---
 legend_handles = []
 for i in unique_classes:
     handle = plt.Line2D(
@@ -76,6 +74,6 @@ for i in unique_classes:
 
 fig.legend(handles=legend_handles, title="Paper Topic", bbox_to_anchor=(1.02, 0.5), loc="center left")
 fig.suptitle('Cora Dataset — Graphs from Different Adjacency Constructions', fontsize=16)
-plt.tight_layout(rect=[0, 0, 0.9, 0.95])  # Space for legend and title
+plt.tight_layout(rect=[0, 0, 0.9, 0.95])
 plt.savefig('all_graph_adjacency_views.png', bbox_inches='tight')
 plt.show()

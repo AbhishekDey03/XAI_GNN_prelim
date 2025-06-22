@@ -48,3 +48,19 @@ def UMAP_threshold(X, T=5, n_components=2):
     mask = np.logical_or(mask, mask.T)
     edge_index, _ = dense_to_sparse(torch.tensor(mask, dtype=torch.float))
     return edge_index
+
+def mknn_adjacency(X, K=5, metric='jaccard'):
+    n_nodes = X.shape[0]
+    knn = NearestNeighbors(n_neighbors=K, metric=metric, n_jobs=-1).fit(X)
+    _, knn_idx = knn.kneighbors(X)
+
+    mask = np.zeros((n_nodes, n_nodes), dtype=np.int8)
+    for i, nbrs in enumerate(knn_idx):
+        mask[i, nbrs] = 1
+    mask = np.logical_and(mask, mask.T).astype(np.int8)
+
+    edge_index, _ = dense_to_sparse(torch.tensor(mask, dtype=torch.int64))
+    edge_index = to_undirected(edge_index)
+    edge_index, _ = add_self_loops(edge_index)
+    
+    return edge_index
