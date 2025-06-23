@@ -27,7 +27,7 @@ class_map = {
 cmap = plt.get_cmap('Set1', len(unique_classes))
 node_colors = [cmap(label) for label in labels]
 
-overlap_num = 200
+overlap_num = 1200
 KNN_num = 5
 mKNN_num = 15
 threshold_percentile = 5
@@ -36,17 +36,18 @@ adj_methods = {
     'kNN\n(Jaccard, K=5)': lambda X: adj.knn_adjacency(X, K=KNN_num, metric='jaccard'),
     'Default\n(Original Graph)': lambda X: adj.default_adjacency(X, data.edge_index),
     'mKNN\n(Jaccard, K=15)': lambda X: adj.mknn_adjacency(X, K=mKNN_num, metric='jaccard'),
-    f'Raw Overlap\n(min {overlap_num} shared features)': lambda X: adj.raw_overlap_adjacency(X, min_overlap=overlap_num),
+    f'Raw Overlap\n(min {overlap_num} shared features)': lambda X: adj.feature_overlap_adjacency(X, min_overlap=overlap_num),
 }
 
 
 n_rows = 2
 
 n_methods = len(adj_methods)
-n_cols = np.ceil(n_methods / n_rows)
+n_cols = np.ceil(n_methods / n_rows).astype(int)
 
-fig, axes = plt.subplots(n_rows, n_cols, figsize=(5.5 * n_cols, 5.5 * n_rows), squeeze=False)
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(5.5 * n_cols, 5.5 * n_rows), squeeze=False, constrained_layout=True)
 axes = axes.flatten()
+
 
 for ax, (title, build_fn) in zip(axes, adj_methods.items()):
     edge_index = build_fn(X)
@@ -73,6 +74,7 @@ for ax, (title, build_fn) in zip(axes, adj_methods.items()):
 # Turn off unused axes if any
 for ax in axes[n_methods:]:
     ax.axis('off')
+    ax.set_frame_on(True)
 
 # Legend
 legend_handles = [
@@ -82,12 +84,13 @@ legend_handles = [
     for i in unique_classes
 ]
 
-fig.legend(handles=legend_handles, title="Paper Topic",
-           bbox_to_anchor=(1.01, 0.5), loc="center left", fontsize=10, title_fontsize=11)
+# Add legend to figure
+#fig.legend(handles=legend_handles, title="Paper Topic",
+#           loc='center right', fontsize=10, title_fontsize=11, borderaxespad=0.1)
 
 fig.suptitle('Cora Dataset — Graphs from Different Adjacency Constructions',
-             fontsize=16, fontweight='bold', y=1.02)
+             fontsize=16, fontweight='bold')
 
-plt.tight_layout(rect=[0, 0, 0.85, 1])
-plt.savefig('all_graph_adjacency_views.png', bbox_inches='tight', dpi=300)
+# Save and show
+plt.savefig('all_graph_adjacency_views.png', dpi=300, bbox_inches='tight')
 plt.show()

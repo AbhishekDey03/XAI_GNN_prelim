@@ -26,7 +26,7 @@ type_map = {
     6: 'Case Based'
 }
 
-adjacency_type = 'Default'  # 'default', 'threshold', 'knn'
+adjacency_type = 'Feature Overlap'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
@@ -53,10 +53,10 @@ elif adjacency_type.lower() == 'mknn':
     metric = 'Jaccard'
     edge_index = mknn_adjacency(X, K, metric.lower())
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
-elif adjacency_type.lower() == 'raw_overlap':
-    min_overlap = 300
-    metric = False
-    edge_index = raw_overlap_adjacency(X, min_overlap)
+elif adjacency_type.lower() == 'feature overlap':
+    min_overlap = 5
+    metric = f'{min_overlap} features'
+    edge_index = feature_overlap_adjacency(X, min_overlap)
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
 
 class GCN(torch.nn.Module):

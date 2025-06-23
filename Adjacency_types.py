@@ -6,11 +6,10 @@ from sklearn.neighbors import NearestNeighbors
 from torch_geometric.utils import add_self_loops, to_undirected
 
 def threshold_adjacency(X, T=5, metric='hamming'):
-
     D = pairwise_distances(X, metric=metric)
     d_cut = np.percentile(D.reshape(-1), T)
     mask = (D < d_cut).astype(np.int8)
-    mask = np.logical_or(mask, mask.T)  # Enforce symmetry
+    mask = np.logical_or(mask, mask.T)
     edge_index, _ = dense_to_sparse(torch.tensor(mask, dtype=torch.float))
     
     return edge_index
@@ -54,7 +53,7 @@ def mknn_adjacency(X, K=5, metric='jaccard'):
     
     return edge_index
 
-def raw_overlap_adjacency(X, min_overlap=300):
+def feature_overlap_adjacency(X, min_overlap):
     overlap = X @ X.T  # intersection count for binary BoW
     mask = (overlap >= min_overlap).astype(np.int8)
     mask = np.logical_or(mask, mask.T).astype(np.int8)
