@@ -12,6 +12,7 @@ from Silhouette_plots import plot_silhouette
 from Adjacency_types import *
 import umap.umap_ as umap
 from sklearn.preprocessing import StandardScaler
+from quantities import graph_quantities
 
 
 
@@ -25,7 +26,7 @@ type_map = {
     6: 'Case Based'
 }
 
-adjacency_type = 'Threshold'  # 'default', 'threshold', 'knn'
+adjacency_type = 'Default'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
@@ -178,3 +179,9 @@ plot_silhouette(H, labels, f'Silhouette — GCN Final Layer {adjacency_type} {me
                 label_to_color=label_to_color,
                 label_names=label_names)
 
+metrics = graph_quantities(edge_index=edge_index,
+                           features=X,         
+                           embeddings=H,      
+                           labels=labels,
+                           metric_pairwise='jaccard') 
+print(metrics)
