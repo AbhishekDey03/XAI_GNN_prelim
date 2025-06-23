@@ -25,7 +25,7 @@ type_map = {
     6: 'Case Based'
 }
 
-adjacency_type = 'mKNN'  # 'default', 'threshold', 'knn'
+adjacency_type = 'Threshold'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
@@ -47,15 +47,15 @@ elif adjacency_type.lower() == 'default':
     metric = False
     edge_index = default_adjacency(X, data.edge_index)
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
-elif adjacency_type.lower() == 'umap threshold':
-    metric = 'Euclidean'
-    T=5
-    edge_index = UMAP_threshold(X, T, n_components=2)
-    print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
 elif adjacency_type.lower() == 'mknn':
-    K = 5
+    K = 14
     metric = 'Jaccard'
     edge_index = mknn_adjacency(X, K, metric.lower())
+    print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
+elif adjacency_type.lower() == 'raw_overlap':
+    min_overlap = 300
+    metric = False
+    edge_index = raw_overlap_adjacency(X, min_overlap)
     print(f'Number of edges (incl. self-loops): {edge_index.shape[1]}')
 
 class GCN(torch.nn.Module):
