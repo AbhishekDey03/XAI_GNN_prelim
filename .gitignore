@@ -5,3 +5,5 @@
 *.png
 .DS_Store
 test.py
+*.sh
+*.pdf

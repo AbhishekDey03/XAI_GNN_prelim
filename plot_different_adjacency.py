@@ -9,7 +9,7 @@ import Adjacency_types as adj
 
 # --- Setup ---
 seed = 11363
-dataset = Planetoid(root='/tmp/Cora', name='Cora')
+dataset = Planetoid(root='/Cora', name='Cora')
 data = dataset[0]
 X = data.x.numpy()
 labels = data.y.numpy()
@@ -75,5 +75,5 @@ for i in unique_classes:
 fig.legend(handles=legend_handles, title="Paper Topic", bbox_to_anchor=(1.02, 0.5), loc="center left")
 fig.suptitle('Cora Dataset — Graphs from Different Adjacency Constructions', fontsize=16)
 plt.tight_layout(rect=[0, 0, 0.9, 0.95])
-plt.savefig('all_graph_adjacency_views.png', bbox_inches='tight')
+plt.savefig('all_graph_adjacency_views.pdf', bbox_inches='tight')
 plt.show()
