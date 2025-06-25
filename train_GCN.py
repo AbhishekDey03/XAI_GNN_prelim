@@ -30,7 +30,7 @@ adjacency_type = 'Feature Overlap'  # 'default', 'threshold', 'knn'
 blank  = '' # Placeholder for blanks in the plots
 seed = 11363
 
-dataset = Planetoid(root='/tmp/Cora', name='Cora')
+dataset = Planetoid(root='/Cora', name='Cora')
 data = dataset[0]
 X = data.x.numpy()
 
@@ -157,7 +157,7 @@ legend_names = [type_map[int(re.search(r'\d+', lbl).group())] for lbl in legend_
 fig.legend(handles, legend_names, title="Paper Topic", loc='upper right', fontsize=12)
 
 plt.tight_layout(rect=[0, 0, 0.95, 1])  # leaves space for legend
-plt.savefig(f'tSNE_vs_UMAP_{adjacency_type}{metric if metric else blank}.png')
+plt.savefig(f'tSNE_vs_UMAP_{adjacency_type}{metric if metric else blank}.pdf')
 plt.show()
 
 
@@ -175,7 +175,7 @@ plot_silhouette(X, labels, 'Silhouette — Original Input Features',
 
 plot_silhouette(H, labels, f'Silhouette — GCN Final Layer {adjacency_type} {metric if metric else blank}',
                 save=True,
-                plot_name=f'silhouette_gcn_final_layer_{adjacency_type}{metric if metric else blank}.png',
+                plot_name=f'silhouette_gcn_final_layer_{adjacency_type}{metric if metric else blank}.pdf',
                 label_to_color=label_to_color,
                 label_names=label_names)
 

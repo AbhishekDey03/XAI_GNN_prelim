@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Adjacency_types as adj
 
+# --- Setup ---
 seed = 11363
-dataset = Planetoid(root='/tmp/Cora', name='Cora')
+dataset = Planetoid(root='/Cora', name='Cora')
 data = dataset[0]
 X = data.x.numpy()
 labels = data.y.numpy()
@@ -24,73 +25,55 @@ class_map = {
     6: 'Case Based'
 }
 
+# Color map
 cmap = plt.get_cmap('Set1', len(unique_classes))
 node_colors = [cmap(label) for label in labels]
 
-overlap_num = 1200
-KNN_num = 5
-mKNN_num = 15
-threshold_percentile = 5
+# --- Adjacency Methods ---
 adj_methods = {
-    'Threshold\n(Jaccard, T=5%)': lambda X: adj.threshold_adjacency(X, T=threshold_percentile, metric='jaccard'),
-    'kNN\n(Jaccard, K=5)': lambda X: adj.knn_adjacency(X, K=KNN_num, metric='jaccard'),
-    'Default\n(Original Graph)': lambda X: adj.default_adjacency(X, data.edge_index),
-    'mKNN\n(Jaccard, K=15)': lambda X: adj.mknn_adjacency(X, K=mKNN_num, metric='jaccard'),
-    f'Raw Overlap\n(min {overlap_num} shared features)': lambda X: adj.feature_overlap_adjacency(X, min_overlap=overlap_num),
+    'Threshold (Jaccard)': lambda X: adj.threshold_adjacency(X, T=5, metric='jaccard'),
+    'kNN (Jaccard)': lambda X: adj.knn_adjacency(X, K=5, metric='jaccard'),
+    'Default (Original)': lambda X: adj.default_adjacency(X, data.edge_index),
+    'mKNN (Jaccard)': lambda X: adj.mknn_adjacency(X, K=10, metric='jaccard'),
+    'Raw Overlap': lambda X: adj.raw_overlap_adjacency(X, min_overlap=300),
 }
 
-
-n_rows = 2
-
 n_methods = len(adj_methods)
-n_cols = np.ceil(n_methods / n_rows).astype(int)
+fig, axes = plt.subplots(1, n_methods, figsize=(5 * n_methods, 6))
 
-fig, axes = plt.subplots(n_rows, n_cols, figsize=(5.5 * n_cols, 5.5 * n_rows), squeeze=False, constrained_layout=True)
-axes = axes.flatten()
+if n_methods == 1:
+    axes = [axes] 
 
-
-for ax, (title, build_fn) in zip(axes, adj_methods.items()):
+for ax, (name, build_fn) in zip(axes, adj_methods.items()):
     edge_index = build_fn(X)
     temp_data = Data(x=data.x, edge_index=edge_index, y=data.y)
     g = to_networkx(temp_data, to_undirected=True)
-    g.remove_edges_from(nx.selfloop_edges(g))
     pos = nx.spring_layout(g, seed=seed)
-
+    g.remove_edges_from(nx.selfloop_edges(g))
     nx.draw(
         g,
         pos=pos,
         ax=ax,
         node_color=node_colors,
         with_labels=False,
-        node_size=12,
-        edge_color='lightgray',
+        node_size=10,
+        edge_color='gray',
         alpha=0.8
     )
-
-    ax.set_title(title, fontsize=11, fontweight='bold')
-    ax.set_aspect('equal')
+    ax.set_title(name, fontsize=12)
     ax.axis('off')
 
-# Turn off unused axes if any
-for ax in axes[n_methods:]:
-    ax.axis('off')
-    ax.set_frame_on(True)
+legend_handles = []
+for i in unique_classes:
+    handle = plt.Line2D(
+        [0], [0], marker='o', color='w',
+        markerfacecolor=cmap(i), markersize=10,
+        label=class_map[i]
+    )
+    legend_handles.append(handle)
 
-# Legend
-legend_handles = [
-    plt.Line2D([0], [0], marker='o', color='w',
-               markerfacecolor=cmap(i), markersize=9,
-               label=class_map[i])
-    for i in unique_classes
-]
-
-# Add legend to figure
-#fig.legend(handles=legend_handles, title="Paper Topic",
-#           loc='center right', fontsize=10, title_fontsize=11, borderaxespad=0.1)
-
-fig.suptitle('Cora Dataset — Graphs from Different Adjacency Constructions',
-             fontsize=16, fontweight='bold')
-
-# Save and show
-plt.savefig('all_graph_adjacency_views.png', dpi=300, bbox_inches='tight')
+fig.legend(handles=legend_handles, title="Paper Topic", bbox_to_anchor=(1.02, 0.5), loc="center left")
+fig.suptitle('Cora Dataset — Graphs from Different Adjacency Constructions', fontsize=16)
+plt.tight_layout(rect=[0, 0, 0.9, 0.95])
+plt.savefig('all_graph_adjacency_views.pdf', bbox_inches='tight')
 plt.show()
